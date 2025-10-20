@@ -1,0 +1,2 @@
+2025-10-20 16:02:12 | Creating backend in C:\Projects\TheBenjiBagv2\backend
+2025-10-20 16:02:12 | → npm install (in C:\Projects\TheBenjiBagv2\backend)

@@ -1,10 +1,4 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/*
- * This file defines the Tailwind CSS directives required for the
- * project. Tailwind will generate its base styles, component
- * classes, and utility classes from these directives. Additional
- * global styles can be added below this section if needed.
- */
+:root{--brand-green:#3f7f28;--brand-gold:#f4a300;}

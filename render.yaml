@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: TheBenjiBag-Backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci || npm install
+    startCommand: node server.js
+    autoDeploy: true
+
+  - type: web
+    name: TheBenjiBag-Frontend
+    env: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci || npm install && npm run build
+    startCommand: npx serve -s dist -l 10000
+    autoDeploy: true

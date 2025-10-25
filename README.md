@@ -1,12 +1,5 @@
-# TheBenjiBag Upgrade (Vite + React + Tailwind + Express)
 
-## Local
-```
-cd backend && npm install && cd ..
-cd frontend && npm install && npm run build && cd ..
-```
+# TheBenjiBag — Pro Upgrade (Vite + React + Tailwind, Express, Admin/Driver)
 
-## Render
-- Connect repo and auto-deploy.
-- Frontend `rootDir: frontend`, Backend `rootDir: backend`.
-- Optional env: `VITE_API_BASE=https://thebenjibag-backend.onrender.com`
+See `scripts/Trigger-Render-Deploy.ps1` to trigger both Render deploys.
+Set `VITE_API_BASE` on the frontend, and `JWT_SECRET` (plus optional SMTP) on the backend.

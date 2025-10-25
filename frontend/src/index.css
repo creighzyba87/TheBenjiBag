@@ -1,4 +1,6 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root{--brand-green:#3f7f28;--brand-gold:#f4a300;}
+
+:root { color-scheme: light; }

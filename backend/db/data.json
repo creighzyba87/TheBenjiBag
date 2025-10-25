@@ -1,4 +1,4 @@
-﻿{
+{
   "users": [],
   "drivers": [{"id":"drv-1","name":"Primary Driver","homeBase":{"lat":37.6391,"lng":-120.9970},"schedule":[]}],
   "orders": [],

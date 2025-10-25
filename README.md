@@ -1,5 +1,11 @@
+# TheBenjiBag — Phase 3
 
-# TheBenjiBag — Pro Upgrade (Vite + React + Tailwind, Express, Admin/Driver)
+**Stack**: Vite + React + Tailwind v3 (frontend) • Express + JWT + lowdb (backend)
 
-See `scripts/Trigger-Render-Deploy.ps1` to trigger both Render deploys.
-Set `VITE_API_BASE` on the frontend, and `JWT_SECRET` (plus optional SMTP) on the backend.
+## Deploy
+1) Unzip into the repository root.
+2) Commit & push `main` (Render auto-deploy) or run `scripts/Build-Publish.ps1`.
+
+## Local Dev
+- Backend: `cd backend && npm install && node server.js`
+- Frontend: `cd frontend && npm install && npm run dev`

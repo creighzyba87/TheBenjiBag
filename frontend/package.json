@@ -1,28 +1,29 @@
-
 {
-  "name": "thebenjibag-frontend",
+  "name": "frontend",
+  "version": "3.0.0",
   "private": true,
-  "version": "2.1.0",
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "npx serve -s dist -l 10000",
-    "test": "vitest run"
+    "start": "npx serve -s dist -l 10000"
   },
   "dependencies": {
+    "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.14",
     "vite": "^7.1.11",
-    "vitest": "^2.1.3"
+    "serve": "^14.2.3"
   }
 }

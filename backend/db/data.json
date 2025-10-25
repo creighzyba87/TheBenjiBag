@@ -1,0 +1,10 @@
+﻿{
+  "users": [],
+  "drivers": [{"id":"drv-1","name":"Primary Driver","homeBase":{"lat":37.6391,"lng":-120.9970},"schedule":[]}],
+  "orders": [],
+  "inventory": [
+    {"sku":"Indica","label":"Premium Indica","price":100,"minOz":1,"maxOz":4},
+    {"sku":"Sativa","label":"Premium Sativa","price":100,"minOz":1,"maxOz":4}
+  ],
+  "settings":{"freeDeliveryMinUSD":100}
+}

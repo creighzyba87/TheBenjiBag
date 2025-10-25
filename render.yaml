@@ -1,4 +1,4 @@
-services:
+﻿services:
   - type: web
     name: TheBenjiBag-Backend
     env: node
@@ -7,17 +7,11 @@ services:
     buildCommand: npm ci || npm install
     startCommand: node server.js
     autoDeploy: true
-    envVars:
-      - key: JWT_SECRET
-        value: change-this-secret-in-render
-      - key: DB_PATH
-        value: ../data/db.json
-
   - type: web
     name: TheBenjiBag-Frontend
     env: node
     plan: free
     rootDir: frontend
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci || npm install && npm run build
     startCommand: npx serve -s dist -l 10000
     autoDeploy: true

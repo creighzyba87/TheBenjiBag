@@ -39,7 +39,6 @@ services:
   - type: web
     name: thebenjibag-frontend
     runtime: static
-    region: ohio
     plan: free
     branch: main
     rootDir: Frontend

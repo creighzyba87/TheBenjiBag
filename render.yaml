@@ -8,7 +8,7 @@ services:
     name: thebenjibag-backend
     runtime: node
     region: ohio
-    plan: free
+    plan: starter
     branch: main
     rootDir: Backend
     buildCommand: pnpm install
@@ -39,7 +39,7 @@ services:
   - type: web
     name: thebenjibag-frontend
     runtime: static
-    plan: free
+    plan: starter
     branch: main
     rootDir: Frontend
     buildCommand: pnpm install && pnpm build

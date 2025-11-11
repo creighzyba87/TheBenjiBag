@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
 const { recomputeAndBroadcastETA } = require('./realtime');
-const { Driver } = require('./models/schema');
+const { Driver } = require('./schema');
 
 // Load environment variables from .env file in the backend directory
 dotenv.config({ path: __dirname + '/.env' });

@@ -1,4 +1,4 @@
-const { Order, Driver, DeliveryHistory } = require('../models/schema');
+const { Order, Driver, DeliveryHistory } = require('./schema');
 
 // Mock function for ETA calculation
 // In a real application, this would use a mapping service API (e.g., MapTiler Directions API)

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../schema.js').User;
+const User = require('./schema.js').User;
 
 const requireAuth = (req, res, next) => {
     const token = req.headers.authorization && req.headers.authorization.split(' ')[1];

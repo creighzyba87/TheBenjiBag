@@ -1,5 +1,5 @@
 const express = require('express');
-const { Order, Transaction } = require('../models/schema');
+const { Order, Transaction } = require('./models/schema');
 const router = express.Router();
 
 // Helcim webhook handler
@@ -14,8 +14,8 @@ router.post('/helcim-webhook', (req, res) => {
     // 4. Update the order status and log the transaction
     // Example:
     /*
-    const Order = require('../models/schema').Order;
-    const Transaction = require('../models/schema').Transaction;
+    const Order = require('./models/schema').Order;
+    const Transaction = require('./models/schema').Transaction;
 
     try {
         const order = await Order.findOne({ orderId: orderId });

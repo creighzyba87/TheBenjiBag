@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth, requireRole } = require('./authMiddleware');
-const { User, Product, Order, Driver, Referral, Address, Transaction } = require('../models/schema');
+const { User, Product, Order, Driver, Referral, Address, Transaction } = require('./models/schema');
 const helcimWebhookRouter = require('./helcimWebhook');
 
 // --- Public Routes ---

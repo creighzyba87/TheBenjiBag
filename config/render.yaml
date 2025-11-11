@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: thebenjibag-frontend
+    env: static
+    buildCommand: cd client && npm run build
+    staticPublishPath: client/dist
+    routes:
+      - path: /
+        destination: /index.html
+    envVars:
+      - key: VITE_APP_TITLE
+        value: TheBenjiBag Cannabis Delivery
+      - key: VITE_APP_LOGO
+        value: /logo.svg
+
+  - type: web
+    name: thebenjibag-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thebenjibag-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://thebenjibag.com,https://admin.thebenjibag.com,https://driver.thebenjibag.com
+      - key: MAPTILER_ADMIN
+        sync: false
+      - key: MAPTILER_DRIVER
+        sync: false
+      - key: MAPTILER_CUSTOMER
+        sync: false
+      - key: BREVO_SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: BREVO_SMTP_PORT
+        value: "587"
+      - key: BREVO_SMTP_USER
+        sync: false
+      - key: BREVO_SMTP_KEY
+        sync: false
+      - key: BREVO_SMTP_FROM
+        value: admin@thebenjibag.com
+      - key: HELCIM_API_KEY
+        sync: false
+      - key: HELCIM_TEST_MODE
+        value: "true"
+
+databases:
+  - name: thebenjibag-db
+    databaseName: thebenjibag
+    plan: free
+    region: oregon

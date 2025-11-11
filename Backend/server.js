@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-const { recomputeAndBroadcastETA } = require('./utils/realtime');
+const { recomputeAndBroadcastETA } = require('./realtime');
 const { Driver } = require('./models/schema');
 
 // Load environment variables from .env file in the backend directory

@@ -11,7 +11,7 @@ const { Driver } = require('./schema');
 dotenv.config({ path: __dirname + '/.env' });
 
 const { connectDB } = require('./db.js');
-const { requireAuth, requireRole } = require('./routes/authMiddleware'); // Assuming this is where auth middleware is
+const { requireAuth, requireRole } = require('./authMiddleware');
 const mainRouter = require('./routes/mainRouter');
 
 const app = express();

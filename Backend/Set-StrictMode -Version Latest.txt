@@ -1,0 +1,215 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+param(
+  [string]$Root = "C:\TheBenjiBag_v1",
+  [switch]$AggressiveClean # add this switch if you want extra cleanup of strays
+)
+
+function New-Dir($p){ if(-not(Test-Path $p)){ New-Item -ItemType Directory -Path $p | Out-Null } }
+
+function Backup-Project {
+  $stamp = (Get-Date).ToString("yyyyMMdd-HHmmss")
+  $backupDir = Join-Path $Root "_backup_$stamp"
+  New-Dir $backupDir
+  Write-Host "Backing up project to $backupDir ..."
+  # Fast copy w/robocopy (excludes node_modules to save time/space)
+  $null = robocopy $Root $backupDir /E /NFL /NDL /NJH /NJS /NP /XD "node_modules" ".git" "_backup_*"
+  # Zip the backup
+  $zip = Join-Path $Root "_backup_$stamp.zip"
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  [System.IO.Compression.ZipFile]::CreateFromDirectory($backupDir, $zip)
+  Write-Host "Backup zip created: $zip"
+}
+
+function Move-Into($source, $destDir){
+  if(Test-Path $source){
+    New-Dir $destDir
+    $target = Join-Path $destDir (Split-Path $source -Leaf)
+    if(Test-Path $target){
+      # Prefer the larger or latest file if duplicate
+      $srcInfo = Get-Item $source
+      $dstInfo = Get-Item $target
+      $takeSrc = $srcInfo.Length -gt $dstInfo.Length -or $srcInfo.LastWriteTime -gt $dstInfo.LastWriteTime
+      if($takeSrc){
+        Move-Item -Force $source $target
+      } else {
+        Remove-Item -Force $source
+      }
+    } else {
+      Move-Item -Force $source $destDir
+    }
+  }
+}
+
+function Find-Candidate([string]$name){
+  Get-ChildItem -Path $Root -Recurse -File -Filter $name `
+    | Sort-Object FullName `
+    | Where-Object { $_.FullName -notmatch "\\_backup_" -and $_.FullName -notmatch "\\\.git(\\|$)" }
+}
+
+function Fix-Import($filePath, [string]$from, [string]$to){
+  if(Test-Path $filePath){
+    $content = Get-Content $filePath -Raw
+    if($content -match [regex]::Escape($from)){
+      $content = $content -replace [regex]::Escape($from), [System.Text.RegularExpressions.Regex]::Escape($to).Replace("\\","\")
+      Set-Content -Path $filePath -Value $content -NoNewline
+      Write-Host "Updated import in $filePath"
+    }
+  }
+}
+
+# 1) Backup
+Backup-Project
+
+# 2) Ensure baseline directories
+$backend = Join-Path $Root "Backend"
+$frontend = Join-Path $Root "Frontend"
+$backendModels   = Join-Path $backend "models"
+$backendRoutes   = Join-Path $backend "routes"
+$backendServices = Join-Path $backend "services"
+$backendMiddleware = Join-Path $backend "middleware"
+
+New-Dir $backend
+New-Dir $backendModels
+New-Dir $backendRoutes
+New-Dir $backendServices
+New-Dir $backendMiddleware
+New-Dir $frontend
+
+# 3) Normalize Backend core files
+# 3a) server.js should be at Backend\server.js
+$serverCandidates = @( Find-Candidate "server.js" )
+if($serverCandidates.Count -gt 0){
+  # choose the one already inside Backend if present, else the latest modified
+  $primary = $serverCandidates | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+  if(-not $primary){ $primary = $serverCandidates | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+  Move-Into $primary.FullName $backend
+}
+
+# 3b) schema.js → Backend\models\schema.js
+$schemaDest = Join-Path $backendModels "schema.js"
+if(-not(Test-Path $schemaDest)){
+  $schemaCandidates = @( Find-Candidate "schema.js" )
+  if($schemaCandidates.Count -eq 0){
+    Write-Warning "No schema.js found anywhere. Create one at $schemaDest before starting the server."
+  } else {
+    # Prefer an existing one under Backend or src first
+    $choice = $schemaCandidates | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+    if(-not $choice){ $choice = $schemaCandidates | Where-Object { $_.FullName -match "\\src\\" } | Select-Object -First 1 }
+    if(-not $choice){ $choice = $schemaCandidates | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $choice.FullName $backendModels
+  }
+}
+
+# 3c) authMiddleware.js → Backend\middleware\authMiddleware.js
+$authDest = Join-Path $backendMiddleware "authMiddleware.js"
+if(-not(Test-Path $authDest)){
+  $authCandidates = @( Find-Candidate "authMiddleware.js" )
+  if($authCandidates.Count -gt 0){
+    $pick = $authCandidates | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+    if(-not $pick){ $pick = $authCandidates | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $pick.FullName $backendMiddleware
+  }
+}
+
+# 3d) Move obvious route files into Backend\routes
+$routeNames = @("mainRouter.js","routers.ts","realtime.js","helcimWebhook.js","health.js")
+foreach($r in $routeNames){
+  $c = @( Find-Candidate $r )
+  if($c.Count -gt 0){
+    $pick = $c | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+    if(-not $pick){ $pick = $c | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $pick.FullName $backendRoutes
+  }
+}
+
+# 3e) Place DB and schema sources
+foreach($name in @("db.js","db.ts","schema.ts")){
+  $cand = @( Find-Candidate $name )
+  if($cand.Count -gt 0){
+    $pick = $cand | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+    if(-not $pick){ $pick = $cand | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $pick.FullName $backend
+  }
+}
+
+# 3f) Place services
+foreach($svc in @("emailService.js","securityMiddleware.js","seed.js")){
+  $cand = @( Find-Candidate $svc )
+  if($cand.Count -gt 0){
+    $pick = $cand | Where-Object { $_.FullName -match "\\Backend\\" } | Select-Object -First 1
+    if(-not $pick){ $pick = $cand | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $pick.FullName $backendServices
+  }
+}
+
+# 4) Fix the broken import in Backend\server.js if present
+$serverPath = Join-Path $backend "server.js"
+if(Test-Path $serverPath -and (Test-Path $schemaDest)){
+  # Typical bad path was '../models/schema.js' (one level up). Correct is './models/schema.js'
+  Fix-Import -filePath $serverPath -from "../models/schema.js" -to "./models/schema.js"
+  Fix-Import -filePath $serverPath -from "../models/schema"     -to "./models/schema"
+  # Also normalize middleware import if it referenced sibling files that moved
+  Fix-Import -filePath $serverPath -from "./authMiddleware.js"  -to "./middleware/authMiddleware.js"
+  Fix-Import -filePath $serverPath -from "../authMiddleware.js" -to "./middleware/authMiddleware.js"
+}
+
+# 5) Normalize route imports that reference authMiddleware
+Get-ChildItem $backendRoutes -Recurse -File -ErrorAction SilentlyContinue `
+| Where-Object { $_.Extension -in '.js','.ts' } `
+| ForEach-Object {
+  Fix-Import -filePath $_.FullName -from "../authMiddleware.js" -to "../middleware/authMiddleware.js"
+  Fix-Import -filePath $_.FullName -from "./authMiddleware.js"  -to "../middleware/authMiddleware.js"
+}
+
+# 6) Optional: Aggressive cleanup of obvious leftover duplicates/strays
+if($AggressiveClean){
+  $trash = @(
+    # duplicate middleware copies not in \middleware
+    (Get-ChildItem -Path $backend -Recurse -File -Filter "authMiddleware.js" | Where-Object { $_.DirectoryName -notmatch "\\middleware$" }).FullName,
+    # duplicated schema files not in \models
+    (Get-ChildItem -Path $backend -Recurse -File -Filter "schema.js" | Where-Object { $_.DirectoryName -notmatch "\\models$" }).FullName
+  ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique
+
+  foreach($t in $trash){
+    try{
+      Remove-Item -Force $t
+      Write-Host "Removed stray: $t"
+    } catch { Write-Warning "Could not remove $t : $_" }
+  }
+}
+
+# 7) Frontend: ensure files live under Frontend (do NOT rewrite imports here to avoid churn)
+# Move React entry files if they are sitting in Frontend root into Frontend\src
+$frontendSrc = Join-Path $frontend "src"
+New-Dir $frontendSrc
+$reactFiles = @("App.tsx","Home.tsx","CustomerHome.tsx","DriverMap.tsx","AdminDashboard.tsx",
+                "ProductCatalog.tsx","Checkout.jsx","SocketContext.jsx","useAuth.ts","useSocket.js","AgeGate.tsx")
+foreach($rf in $reactFiles){
+  $cand = @( Find-Candidate $rf )
+  if($cand.Count -gt 0){
+    $pick = $cand | Where-Object { $_.FullName -match "\\Frontend\\" } | Select-Object -First 1
+    if(-not $pick){ $pick = $cand | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+    Move-Into $pick.FullName $frontendSrc
+  }
+}
+
+# 8) Health checks
+$ok = $true
+if(-not (Test-Path $serverPath)){ Write-Warning "Missing Backend\server.js"; $ok=$false }
+if(-not (Test-Path $schemaDest)){ Write-Warning "Missing Backend\models\schema.js"; $ok=$false }
+
+if($ok){
+  Write-Host "`n=== Summary ==="
+  Write-Host "Backend root:    $backend"
+  Write-Host "server.js:       $(Test-Path $serverPath)"
+  Write-Host "models\schema.js $(Test-Path $schemaDest)"
+  Write-Host "`nNext:"
+  Write-Host "  cd `"$backend`""
+  Write-Host "  pnpm install"
+  Write-Host "  pnpm start"
+  Write-Host "`nIf you still see a module-not-found, run with -AggressiveClean to purge strays."
+} else {
+  Write-Host "`nFix the missing files flagged above, then rerun this script."
+}

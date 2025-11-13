@@ -1,0 +1,47 @@
+{
+  "name": "thebenjibag-frontend",
+  "version": "1.0.0",
+  "description": "TheBenjiBag Cannabis Delivery Platform - Frontend Application",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx,ts,tsx"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "tailwind",
+    "cannabis",
+    "delivery"
+  ],
+  "author": "TheBenjiBag",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@trpc/client": "^11.0.0-rc.332",
+    "@trpc/react-query": "^11.0.0-rc.332",
+    "@tanstack/react-query": "^5.17.9",
+    "socket.io-client": "^4.6.1",
+    "react-router-dom": "^6.21.1",
+    "@maptiler/sdk": "^1.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.11",
+    "tailwindcss": "^4.0.0",
+    "postcss": "^8.4.33",
+    "autoprefixer": "^10.4.16",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,48 @@
+# Render.com Blueprint Configuration
+# This file allows you to deploy both Backend and Frontend services
+# automatically from a single configuration file.
+
+services:
+  # Backend Web Service
+  - type: web
+    name: thebenjibag-backend
+    runtime: node
+    region: ohio
+    branch: main
+    rootDir: Backend
+    buildCommand: pnpm install
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # The following environment variables should be added manually
+      # in the Render dashboard as they contain sensitive information:
+      # - JWT_SECRET
+      # - MONGODB_URI
+      # - MAPTILER_ADMIN
+      # - MAPTILER_DRIVER
+      # - MAPTILER_CUSTOMER
+      # - BREVO_SMTP_HOST
+      # - BREVO_SMTP_PORT
+      # - BREVO_SMTP_USER
+      # - BREVO_SMTP_KEY
+      # - BREVO_SMTP_FROM
+      # - HELCIM_API_KEY
+      # - HELCIM_TEST_MODE
+      # - CORS_ORIGIN (set to your frontend URL after frontend is deployed)
+
+  # Frontend Static Site
+  - type: web
+    name: thebenjibag-frontend
+    runtime: static
+    branch: main
+    rootDir: Frontend
+    buildCommand: pnpm install && pnpm build
+    staticPublishPath: dist
+    envVars:
+      # Set this to your backend URL after backend is deployed
+      # - key: VITE_BACKEND_URL
+      #   value: https://thebenjibag-backend.onrender.com
